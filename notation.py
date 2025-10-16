@@ -1,47 +1,58 @@
 # notation.py
-# TODO : Version buggée — à corriger après exécution des tests unitaires
-# TODO : Mettre des commentaires pour identifier les bugs trouvés et comment vous les avez corrigés.
+from typing import List
 
 def valider_notes(notes: list[float]) -> bool:
     """
-    Vérifie que la liste de notes contient exactement 9 entiers entre -3 et +3.
-    :param notes: liste de notes
-    :returns: vrai si la liste et valide, sinon faux.
+    Valider la liste de notes selon les regles du systeme :
+    - exactement 9 notes;
+    - chaque note est comprise entre 0 et 3 (bornes inlcuises).
+    :param notes: liste de 9 notes (int/float)
+    :returns: True si la liste et valide, False sinon
     """
-    if len(notes) < 9:
+    if not isinstance(notes, list):
+        return False
+
+    if len(notes) != 9:
         return False
 
     for n in notes:
-        if n > 3:
+        # Autoriser int/float, mais refuser les autres types
+        if not isinstance(n, (int, float)):
             return False
-
+        if n < 0 or n > 3:
+            return False
     return True
-
 
 def calculer_points(vbase: float, notes: list[float]) -> float:
     """
     Calcule la note finale d’un mouvement.
-    :param vbase: valeur de base de la note
-    :param notes: liste de notes
-    :returns: valeur de la note finale
+
+    - La liste de notes doit etre valide (voir valider_notes). Sinon -> ValueError.
+    - On retire UNE (1) plus grande note.
+    - On fait la moyenne des 7 notes restantes.
+    - On additionne la vbase
+
+    La liste "notes" fournie en argument ne doit pas etre modifiee.
+
+    :param vbase: valeur de base (float)
+    :param notes: liste de 9 notes (int/float) entre 0 et 3 inclus
+    :returns: valeur de la note finale (float)
+    :raises ValueError: si la liste de notes est invalide
     """
-    try:
-        valider_notes(notes)
+    if not valider_notes(notes):
+        raise ValueError ("Liste de notes invalide")
 
-        note_max = max(notes)
-        note_min = min(notes)
+    note_max = max(notes)
+    note_min = min(notes)
 
-        for i in range(len(notes)):
-            if notes[i] == note_max or note_min:
-                notes.remove(notes[i])
+    # Cree une nouvelle liste sans les valeurs extremes
+    note_filtrees =[n for n in notes if n != note_max and n != note_min]
 
-        moyenne = sum(notes) / 9
-        total = vbase + moyenne
-        return total
+    moyenne = sum(note_filtrees) / len(note_filtrees)
+    total = vbase + moyenne
+    return total
 
-    except ValueError:
-        print("Erreur")
-        return 0
+
 
 
 
